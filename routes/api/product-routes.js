@@ -33,6 +33,36 @@ router.get('/:id', async (req, res) => {
 
 // create new product
 router.post('/', (req, res) => {
+  console.log("req.body: ",req.body)
+
+  Product.create({
+
+    product_name: req.body.product_name,
+    price: req.body.price.Categorystock: req.body.stock,
+    tagIds: req.body.tagIds
+
+  })
+  .then((product) => {
+      // create pairings to bulk create in ProductTag model
+      if (req.body.tagIds) {
+        const productTagIdArr = req.body.tagIds.map((tag_id)  => {
+          return {
+            product_id: product.id,
+            tag_id,
+          };
+        });
+        return ProductTag.bulkCreate(productTagIdArr);
+        console.log({productTagIdArr})
+      }
+      
+      res.status(200).json(product);
+    })
+    .then((productTagIds) => res.status(200).json(productTagIds))
+    .catch((err) => {
+      console.log(err);
+      res.status(400).json(err);
+    });
+
   /* req.body should look like this...
     {
       product_name: "Basketball",
